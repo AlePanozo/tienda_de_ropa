@@ -1,10 +1,12 @@
 package com.ada.tienda_de_indumentaria.tiendaAdaV1.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Set;
 
+@Data
 @Entity
 public class Role {
     @Id
@@ -20,19 +22,4 @@ public class Role {
             inverseJoinColumns = @JoinColumn(name = "id_resource"))
     private Set<Resource> roleresource;
 
-    public int getId_role() {
-        return id_role;
-    }
-
-    public void setId_role(int id_role) {
-        this.id_role = id_role;
-    }
-
-    public String getType_rol() {
-        return type_rol;
-    }
-
-    public void setType_rol(String type_rol) {
-        this.type_rol = type_rol;
-    }
 }

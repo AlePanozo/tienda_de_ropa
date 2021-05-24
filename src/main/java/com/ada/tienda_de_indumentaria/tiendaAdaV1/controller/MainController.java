@@ -266,6 +266,21 @@ public class MainController {
         return branch_officeRepository.findAll();
     }
 
+    /*
+    @DeleteMapping(path = "/person/{id_person}/base/delete/{id_base}")
+    public @ResponseBody
+    String deleteBranch_officeById (@PathVariable("id_person")int id_person,@PathVariable("id_branch_office")int id_branch_office) {
+       Collection<Role> rolesByUser = roleRepository.getRoleByUser(id_user);
+
+       for (Role role _ rolesByUser) {
+        if (role.getName().equals("gerente")){
+        branch_officeRepository.deleteById(id_branch_office);
+        return "El registro fue eliminado, id: " + id_branch_office;
+        }
+        }
+        return "Usuario no autorizado para borrar registros";
+    }
+    */
     @DeleteMapping(path = "/garment/delete/{id_garment}")
     public @ResponseBody
     Iterable<Garment> deleteGarmentById (@PathVariable("id_garment")int id_garment) {
@@ -294,7 +309,7 @@ public class MainController {
         return roleRepository.findAll();
     }
 
-    @DeleteMapping(path = "/Sale/delete/{id_sale}")
+    @DeleteMapping(path = "/sale/delete/{id_sale}")
     public @ResponseBody
     Iterable<Sale> deleteSaleById (@PathVariable("id_sale")int id_sale) {
         saleRepository.deleteById(id_sale);
