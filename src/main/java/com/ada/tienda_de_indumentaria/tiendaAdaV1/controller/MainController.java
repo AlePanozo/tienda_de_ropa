@@ -217,6 +217,36 @@ public class MainController {
         return branch_officeRepository.save(updatedBranch_office);
     }
 
+    /*
+    @PutMapping(path = "user/{userId}/pilot/updateByRole")
+    public ResponseEntity<GeneralResponse> updatePilotByRole(@PathVariable ("userId") String userId, @RequestBody Pilot updatePilot){
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Collection<Role> roles = roleRepository.getRolesByUser(userId);
+
+            for (Role role : roles) {
+                if (role.getName().equals("admin") || role.getName().eguals("usuario")) {
+                   pilotRepository.save(updatedPilot);
+                   response.setCode(200);
+                    response.setMessage("El piloto " + updatedPilot.getName() + "Fue actualizado con exito");
+                   return ResponseEntity.ok(response);
+                }
+            }
+            response.setCode(401);
+            response.setMessage("Acceso denegado");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.setCode(500);
+            response.setMessage(e.getlocalizedMessage());
+            return ResponseEntity.ok(response);
+        }
+
+        return branch_officeRepository.save(updatedBranch_office);
+    }
+     */
+
     @PutMapping(path = "/garment/update")
     public Garment updateGarment(@RequestBody Garment updatedGarment){
         return garmentRepository.save(updatedGarment);
@@ -280,6 +310,34 @@ public class MainController {
         }
         return "Usuario no autorizado para borrar registros";
     }
+    */
+
+    /*
+    @DeleteMapping(path = "/person/{id_person}/base/delete/{id_base}")
+    public @ResponseBody
+    ResponseEntity<GeneralResponse> deleteBranch_officeById (@PathVariable("id_person")int id_person,@PathVariable("id_branch_office")int id_branch_office) {
+
+    GeneralResponse response = new GeneralResponse();
+
+    try {
+    Collection<Role> rolesByUser = roleRepository.getRoleByUser(id_user);
+    for (Role role _ rolesByUser) {
+        if (role.getName().equals("gerente")){
+        branch_officeRepository.deleteById(id_branch_office);
+        response.setCode(HttpStatus.Ok.value());
+        response.setMessage("El registro fue eliminado, id: " + id_branch_office);
+        return ResponseEntity.ok(response);
+        }
+        }
+        response.setCode(HttpStatus.UNAUTHORIZED.value());
+        response.serMessage("Usuario no autorizado para borrar registros");
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        response.setCode(HttpStatus.CONFLICT.value());
+        response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+        return ResponseEntity.badRequest().body(response);
+        }
+        }
     */
     @DeleteMapping(path = "/garment/delete/{id_garment}")
     public @ResponseBody
