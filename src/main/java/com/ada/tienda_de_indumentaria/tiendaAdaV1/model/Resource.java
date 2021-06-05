@@ -14,8 +14,8 @@ public class Resource {
     private int id_resource;
     private String type_resource;
 
-    @JsonBackReference
+   /* @JsonBackReference
     @ManyToMany(mappedBy = "roleresource")
-    private Set<Role> roles;
+    private Set<Role> roles;*/
 
 }

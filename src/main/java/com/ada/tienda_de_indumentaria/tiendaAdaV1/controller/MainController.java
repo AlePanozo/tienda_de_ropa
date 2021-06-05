@@ -3,6 +3,8 @@ package com.ada.tienda_de_indumentaria.tiendaAdaV1.controller;
 import com.ada.tienda_de_indumentaria.tiendaAdaV1.model.*;
 import com.ada.tienda_de_indumentaria.tiendaAdaV1.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -87,6 +89,8 @@ public class MainController {
     Iterable<Person> getAllPerson(){
         return personRepository.findAll();
     }
+
+
 
     @GetMapping(path = "/person/{id_person}")
     public @ResponseBody
@@ -212,40 +216,10 @@ public class MainController {
 
     //==============UPDATE
 
-    @PutMapping(path = "/branch_office/update")
+    /*@PutMapping(path = "/branch_office/update")
     public Branch_office updateBranch_office(@RequestBody Branch_office updatedBranch_office){
         return branch_officeRepository.save(updatedBranch_office);
-    }
-
-    /*
-    @PutMapping(path = "user/{userId}/pilot/updateByRole")
-    public ResponseEntity<GeneralResponse> updatePilotByRole(@PathVariable ("userId") String userId, @RequestBody Pilot updatePilot){
-        GeneralResponse response = new GeneralResponse();
-
-        try {
-            Collection<Role> roles = roleRepository.getRolesByUser(userId);
-
-            for (Role role : roles) {
-                if (role.getName().equals("admin") || role.getName().eguals("usuario")) {
-                   pilotRepository.save(updatedPilot);
-                   response.setCode(200);
-                    response.setMessage("El piloto " + updatedPilot.getName() + "Fue actualizado con exito");
-                   return ResponseEntity.ok(response);
-                }
-            }
-            response.setCode(401);
-            response.setMessage("Acceso denegado");
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            response.setCode(500);
-            response.setMessage(e.getlocalizedMessage());
-            return ResponseEntity.ok(response);
-        }
-
-        return branch_officeRepository.save(updatedBranch_office);
-    }
-     */
+    }*/  //ni el gerente deberia estar autorizado para abrir una sucursal
 
     @PutMapping(path = "/garment/update")
     public Garment updateGarment(@RequestBody Garment updatedGarment){
@@ -272,14 +246,89 @@ public class MainController {
         return saleRepository.save(updatedSale);
     }
 
+    @PutMapping(path = "dale/{id_sale}/person/{id_person}/updateByPerson")
+    public ResponseEntity<GeneralResponse> updateSaleByPerson(@PathVariable ("id_person") int id_person, @PathVariable ("id_sale") int id_sale){
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+            Sale updatedSale = saleRepository.findById(id_sale).get();
+
+            if (person.getId_role().getType_rol().equals("admin") || person.getId_role().getType_rol().equals("manager")) {
+                saleRepository.save(updatedSale);
+                response.setCode(200);
+                response.setMessage("El stock " + updatedSale.getId_sale() + "Fue actualizado con exito");
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(401);
+            response.setMessage("Acceso denegado");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.setCode(500);
+            response.setMessage(e.getLocalizedMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
     @PutMapping(path = "/stock/update")
     public Stock updateStock(@RequestBody Stock updatedStock){
         return stockRepository.save(updatedStock);
     }
 
+    @PutMapping(path = "stock/{id_stock}/person/{id_person}/updateByPerson")
+    public ResponseEntity<GeneralResponse> updateStockByPerson(@PathVariable ("id_person") int id_person, @PathVariable ("id_stock") int id_stock){
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+            Stock updatedStock = stockRepository.findById(id_stock).get();
+
+                if (person.getId_role().getType_rol().equals("local manager") || person.getId_role().getType_rol().equals("manager")|| person.getId_role().getType_rol().equals("seller")) {
+                   stockRepository.save(updatedStock);
+                   response.setCode(200);
+                   response.setMessage("El stock " + updatedStock.getId_stock() + "Fue actualizado con exito");
+                   return ResponseEntity.ok(response);
+                }
+            response.setCode(401);
+            response.setMessage("Acceso denegado");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.setCode(500);
+            response.setMessage(e.getLocalizedMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
     @PutMapping(path = "/ticket/update")
     public Ticket updateTicket(@RequestBody Ticket updatedTicket){
         return ticketRepository.save(updatedTicket);
+    }
+
+    @PutMapping(path = "ticket/{id_ticket}/person/{id_person}/updateByPerson")
+    public ResponseEntity<GeneralResponse> updateTicketByPerson(@PathVariable ("id_person") int id_person, @PathVariable ("id_ticket") int id_ticket){
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+            Ticket updatedTicket = ticketRepository.findById(id_ticket).get();
+
+            if (person.getId_role().getType_rol().equals("manager") || person.getId_role().getType_rol().equals("local manager") || person.getId_role().getType_rol().equals("seller")) {
+                ticketRepository.save(updatedTicket);
+                response.setCode(200);
+                response.setMessage("El stock " + updatedTicket.getId_ticket() + "Fue actualizado con exito");
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(401);
+            response.setMessage("Acceso denegado");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.setCode(500);
+            response.setMessage(e.getLocalizedMessage());
+            return ResponseEntity.ok(response);
+        }
     }
 
     @PutMapping(path = "/turn/update")
@@ -296,49 +345,20 @@ public class MainController {
         return branch_officeRepository.findAll();
     }
 
-    /*
-    @DeleteMapping(path = "/person/{id_person}/base/delete/{id_base}")
+    @DeleteMapping(path = "/person/{id_person}/branch_office/delete/{id_branch_office}")
     public @ResponseBody
     String deleteBranch_officeById (@PathVariable("id_person")int id_person,@PathVariable("id_branch_office")int id_branch_office) {
-       Collection<Role> rolesByUser = roleRepository.getRoleByUser(id_user);
 
-       for (Role role _ rolesByUser) {
-        if (role.getName().equals("gerente")){
-        branch_officeRepository.deleteById(id_branch_office);
-        return "El registro fue eliminado, id: " + id_branch_office;
-        }
-        }
-        return "Usuario no autorizado para borrar registros";
+       Person person = personRepository.findById(id_person).get();
+
+       if (person.getId_role().getId_role() == 1) {
+           branch_officeRepository.deleteById(id_branch_office);
+           return "El registro fue eliminado, id: " + id_branch_office;
+       }
+
+       return "Usuario no autorizado para borrar registros";
     }
-    */
 
-    /*
-    @DeleteMapping(path = "/person/{id_person}/base/delete/{id_base}")
-    public @ResponseBody
-    ResponseEntity<GeneralResponse> deleteBranch_officeById (@PathVariable("id_person")int id_person,@PathVariable("id_branch_office")int id_branch_office) {
-
-    GeneralResponse response = new GeneralResponse();
-
-    try {
-    Collection<Role> rolesByUser = roleRepository.getRoleByUser(id_user);
-    for (Role role _ rolesByUser) {
-        if (role.getName().equals("gerente")){
-        branch_officeRepository.deleteById(id_branch_office);
-        response.setCode(HttpStatus.Ok.value());
-        response.setMessage("El registro fue eliminado, id: " + id_branch_office);
-        return ResponseEntity.ok(response);
-        }
-        }
-        response.setCode(HttpStatus.UNAUTHORIZED.value());
-        response.serMessage("Usuario no autorizado para borrar registros");
-        return ResponseEntity.ok(response);
-    } catch (Exception e) {
-        response.setCode(HttpStatus.CONFLICT.value());
-        response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
-        return ResponseEntity.badRequest().body(response);
-        }
-        }
-    */
     @DeleteMapping(path = "/garment/delete/{id_garment}")
     public @ResponseBody
     Iterable<Garment> deleteGarmentById (@PathVariable("id_garment")int id_garment) {
@@ -367,11 +387,61 @@ public class MainController {
         return roleRepository.findAll();
     }
 
+    @DeleteMapping(path = "/role/{id_role}/delete2/person/{id_person}") // consultar quiero borrar solo si es manager
+    public @ResponseBody
+
+    ResponseEntity<GeneralResponse> deletePersonByIdRole (@PathVariable("id_person")int id_person,@PathVariable("id_role")int id_role) {
+
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Role role = roleRepository.findById(id_role).get();
+
+            if (role.getId_role() == 1) {
+                roleRepository.deleteById(id_role);
+                response.setCode(HttpStatus.OK.value());
+                response.setMessage("El registro fue eliminado, id: " + id_person);
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(HttpStatus.UNAUTHORIZED.value());
+            response.setMessage("Usuario no autorizado para borrar registros");
+            return ResponseEntity.ok(response);
+        } catch (Exception e){
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @DeleteMapping(path = "/sale/delete/{id_sale}")
     public @ResponseBody
     Iterable<Sale> deleteSaleById (@PathVariable("id_sale")int id_sale) {
         saleRepository.deleteById(id_sale);
         return saleRepository.findAll();
+    }
+
+    @DeleteMapping(path = "/person/{id_person}/sale/delete2/{id_sale}")
+    public @ResponseBody
+    ResponseEntity<GeneralResponse> deleteSaleById2 (@PathVariable("id_person")int id_person,@PathVariable("id_sale")int id_sale) {
+
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+            if (person.getId_role().getId_role() == 1){
+                saleRepository.deleteById(id_sale);
+                response.setCode(HttpStatus.OK.value());
+                response.setMessage("El registro fue eliminado, id: " + id_sale);
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(HttpStatus.UNAUTHORIZED.value());
+            response.setMessage("Usuario no autorizado para borrar registros");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @DeleteMapping(path = "/stock/delete/{id_stock}")
@@ -386,6 +456,30 @@ public class MainController {
     Iterable<Ticket> deleteTicketById (@PathVariable("id_ticket")int id_ticket) {
         ticketRepository.deleteById(id_ticket);
         return ticketRepository.findAll();
+    }
+
+    @DeleteMapping(path = "/person/{id_person}/ticket/delete2/{id_ticket}")
+    public @ResponseBody
+    ResponseEntity<GeneralResponse> deleteTicketById2 (@PathVariable("id_person")int id_person,@PathVariable("id_ticket")int id_ticket) {
+
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+            if (person.getId_role().getId_role() == 1){
+                ticketRepository.deleteById(id_ticket);
+                response.setCode(HttpStatus.OK.value());
+                response.setMessage("El registro fue eliminado, id: " + id_ticket);
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(HttpStatus.UNAUTHORIZED.value());
+            response.setMessage("Usuario no autorizado para borrar registros");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @DeleteMapping(path = "/turn/delete/{id_turn}")
