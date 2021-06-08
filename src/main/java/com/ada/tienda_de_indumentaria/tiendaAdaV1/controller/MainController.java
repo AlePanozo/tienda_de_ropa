@@ -199,6 +199,29 @@ public class MainController {
         return saleRepository.save(newSale);
     }
 
+    @PostMapping(path = "/sale/createById/person/{id_person}", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<GeneralResponse> createSaleById (@PathVariable("id_person")int id_person,@PathVariable("id_sale")int id_sale) {
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+            Sale newSale = saleRepository.findById(id_sale).get();
+            if (person.getId_role().getType_rol().equals("admin") || person.getId_role().getType_rol().equals("manager")) {
+                saleRepository.save(newSale);
+                response.setCode(HttpStatus.OK.value());
+                response.setMessage("El registro fue creado, id: " + id_sale);
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(HttpStatus.UNAUTHORIZED.value());
+            response.setMessage("Usuario no autorizado para crear registros");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @PostMapping(path = "/stock/create", consumes = "application/json", produces = "application/json")
     public Stock createStock (@RequestBody Stock newStock) {
         return stockRepository.save(newStock);
@@ -246,7 +269,7 @@ public class MainController {
         return saleRepository.save(updatedSale);
     }
 
-    @PutMapping(path = "dale/{id_sale}/person/{id_person}/updateByPerson")
+    @PutMapping(path = "sale/{id_sale}/person/{id_person}/updateByPerson")
     public ResponseEntity<GeneralResponse> updateSaleByPerson(@PathVariable ("id_person") int id_person, @PathVariable ("id_sale") int id_sale){
         GeneralResponse response = new GeneralResponse();
 
