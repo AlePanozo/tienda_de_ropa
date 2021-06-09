@@ -14,12 +14,4 @@ public class Role {
     private int id_role;
     private String type_rol;
 
-    @JsonManagedReference
-    @ManyToMany
-    @JoinTable(
-            name = "role_resource",
-            joinColumns = @JoinColumn(name = "id_role"),
-            inverseJoinColumns = @JoinColumn(name = "id_resource"))
-    private Set<Resource> roleresource;
-
 }

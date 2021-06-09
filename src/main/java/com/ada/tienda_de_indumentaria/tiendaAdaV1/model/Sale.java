@@ -15,7 +15,7 @@ public class Sale {
     private String description;
     private int price;
     private int amount;
-    private Date id_date;
+    private Date update_;
     private int total;
 
     @OneToOne
