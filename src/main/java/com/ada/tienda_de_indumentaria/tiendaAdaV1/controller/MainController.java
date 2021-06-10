@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -190,11 +189,6 @@ public class MainController {
         return personRepository.save(newPerson);
     }
 
-    @PostMapping(path = "/role/create", consumes = "application/json", produces = "application/json")
-    public Role createRole (@RequestBody Role newRole) {
-        return roleRepository.save(newRole);
-    }
-
     @PostMapping(path = "/sale/create", consumes = "application/json", produces = "application/json")
     public Sale createSale (@RequestBody Sale newSale) {
         return saleRepository.save(newSale);
@@ -234,7 +228,7 @@ public class MainController {
     }
 
     //==============UPDATE
-    
+
     @PutMapping(path = "/garment/update")
     public Garment updateGarment(@RequestBody Garment updatedGarment){
         return garmentRepository.save(updatedGarment);
@@ -318,7 +312,7 @@ public class MainController {
             Person person = personRepository.findById(id_person).get();
             Ticket updatedTicket = ticketRepository.findById(id_ticket).get();
 
-            if (person.getId_role().getType_rol().equals("manager") || person.getId_role().getType_rol().equals("local manager") || person.getId_role().getType_rol().equals("seller")) {
+            if (person.getId_role().getType_rol().equals("manager") || person.getId_role().getType_rol().equals("local manager")) {
                 ticketRepository.save(updatedTicket);
                 response.setCode(200);
                 response.setMessage("El stock " + updatedTicket.getId_ticket() + "Fue actualizado con exito");
@@ -337,27 +331,6 @@ public class MainController {
 
     //==============DELETE
 
-    @DeleteMapping(path = "/branch_office/delete/{id_branch_office}")
-    public @ResponseBody
-    Iterable<Branch_office> deleteBranch_officeById (@PathVariable("id_branch_office")int id_branch_office) {
-        branch_officeRepository.deleteById(id_branch_office);
-        return branch_officeRepository.findAll();
-    }
-
-    @DeleteMapping(path = "/person/{id_person}/branch_office/delete/{id_branch_office}")
-    public @ResponseBody
-    String deleteBranch_officeById (@PathVariable("id_person")int id_person,@PathVariable("id_branch_office")int id_branch_office) {
-
-       Person person = personRepository.findById(id_person).get();
-
-       if (person.getId_role().getId_role() == 1) {
-           branch_officeRepository.deleteById(id_branch_office);
-           return "El registro fue eliminado, id: " + id_branch_office;
-       }
-
-       return "Usuario no autorizado para borrar registros";
-    }
-
     @DeleteMapping(path = "/garment/delete/{id_garment}")
     public @ResponseBody
     Iterable<Garment> deleteGarmentById (@PathVariable("id_garment")int id_garment) {
@@ -370,13 +343,6 @@ public class MainController {
     Iterable<Person> deletePersontById (@PathVariable("id_person")int id_person) {
         personRepository.deleteById(id_person);
         return personRepository.findAll();
-    }
-
-    @DeleteMapping(path = "/resource/delete/{id_resource}")
-    public @ResponseBody
-    Iterable<Resource> deleteResourceById (@PathVariable("id_resource")int id_resource) {
-        resourceRepository.deleteById(id_resource);
-        return resourceRepository.findAll();
     }
 
     @DeleteMapping(path = "/role/delete/{id_role}")
@@ -458,13 +424,13 @@ public class MainController {
 
     @DeleteMapping(path = "/person/{id_person}/ticket/delete2/{id_ticket}")
     public @ResponseBody
-    ResponseEntity<GeneralResponse> deleteTicketById2 (@PathVariable("id_person")int id_person,@PathVariable("id_ticket")int id_ticket) {
+    ResponseEntity<GeneralResponse> deleteTicketById (@PathVariable("id_person")int id_person,@PathVariable("id_ticket")int id_ticket) {
 
         GeneralResponse response = new GeneralResponse();
 
         try {
             Person person = personRepository.findById(id_person).get();
-            if (person.getId_role().getId_role() == 1){
+            if (person.getId_role().getId_role() == 1) {
                 ticketRepository.deleteById(id_ticket);
                 response.setCode(HttpStatus.OK.value());
                 response.setMessage("El registro fue eliminado, id: " + id_ticket);
@@ -479,12 +445,4 @@ public class MainController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-
-    @DeleteMapping(path = "/turn/delete/{id_turn}")
-    public @ResponseBody
-    Iterable<Turn> deleteTurnById (@PathVariable("id_turn")int id_turn) {
-        turnRepository.deleteById(id_turn);
-        return turnRepository.findAll();
-    }
-
 }
