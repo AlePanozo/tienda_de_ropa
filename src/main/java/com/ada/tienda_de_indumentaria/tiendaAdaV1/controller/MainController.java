@@ -44,6 +44,30 @@ public class MainController {
         return stockRepository.findById(id_stock);
     }
 
+    @GetMapping(path = "stock/{id_stock}/person/{id_person}/getByPerson")
+    public ResponseEntity<GeneralResponse> getStockByPerson(@PathVariable ("id_person") int id_person, @PathVariable ("id_stock") int id_stock){
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+
+            if (person.getId_role().getType_rol().equals("manager") || person.getId_role().getType_rol().equals("local manager")) {
+                Stock retrievedSale = stockRepository.findById(id_stock).get();
+                response.setCode(200);
+                response.setMessage("El stock " + retrievedSale.getId_stock() + " fue traido con exito");
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(401);
+            response.setMessage("Acceso denegado. Usted no puede traer el registro");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.setCode(500);
+            response.setMessage(e.getLocalizedMessage());
+            return ResponseEntity.ok(response);
+        }
+    }
+
     @Autowired
     private ResourceRepository resourceRepository;
 
@@ -71,12 +95,35 @@ public class MainController {
         return personRepository.findAll();
     }
 
-
-
     @GetMapping(path = "/person/{id_person}")
     public @ResponseBody
     Optional<Person> getPersonById (@PathVariable("id_person")int id_person){
         return personRepository.findById(id_person);
+    }
+
+    @GetMapping(path = "/loggedPerson/{id_loggedPerson}/getByPerson/person/{id_person}")
+    public @ResponseBody
+
+    ResponseEntity<GeneralResponse> retrivedPersonByIdLoggedPerson (@PathVariable("id_person")int id_person,@PathVariable("id_loggedPerson")int id_loggedPerson) {
+
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person loggedPerson = personRepository.findById(id_loggedPerson).get();
+            if (loggedPerson.getId_role().getId_role() == 1 ||loggedPerson.getId_role().getId_role() == 2) {
+                Person person = personRepository.findById(id_person).get();
+                response.setCode(HttpStatus.OK.value());
+                response.setMessage("El registro fue traido: " + person.toString());
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(HttpStatus.UNAUTHORIZED.value());
+            response.setMessage("Usuario no autorizado para traer registros");
+            return ResponseEntity.ok(response);
+        } catch (Exception e){
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @Autowired
@@ -105,7 +152,7 @@ public class MainController {
 
     @GetMapping(path = "/branch_office/{id_branch_office}")
     public @ResponseBody
-    Optional<Branch_office> getbranch_officeById (@PathVariable("id_branch_office")int id_branch_office){
+    Optional<Branch_office> getBranch_officeById (@PathVariable("id_branch_office")int id_branch_office){
         return branch_officeRepository.findById(id_branch_office);
     }
 
@@ -120,8 +167,32 @@ public class MainController {
 
     @GetMapping(path = "/sale/{id_sale}")
     public @ResponseBody
-    Optional<Sale> getsaleById (@PathVariable("id_sale")int id_sale){
+    Optional<Sale> getSaleById (@PathVariable("id_sale")int id_sale){
         return saleRepository.findById(id_sale);
+    }
+
+    @GetMapping(path = "sale/{id_sale}/person/{id_person}/getByPerson")
+    public ResponseEntity<GeneralResponse> getSaleByPerson(@PathVariable ("id_person") int id_person, @PathVariable ("id_sale") int id_sale){
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+
+            if (person.getId_role().getType_rol().equals("manager") || person.getId_role().getType_rol().equals("local manager")) {
+                Sale retrievedSale = saleRepository.findById(id_sale).get();
+                response.setCode(200);
+                response.setMessage("La venta " + retrievedSale.getId_sale() + " fue traido con exito");
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(401);
+            response.setMessage("Acceso denegado. Usted no puede traer el registro");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.setCode(500);
+            response.setMessage(e.getLocalizedMessage());
+            return ResponseEntity.ok(response);
+        }
     }
 
     @Autowired
@@ -140,10 +211,10 @@ public class MainController {
         try {
             Person person = personRepository.findById(id_person).get();
 
-            if (person.getId_role().getType_rol().equals("manager") || person.getId_role().getType_rol().equals("local manager") || person.getId_role().getType_rol().equals("seller")) {
+            if (person.getId_role().getType_rol().equals("seller") || person.getId_role().getType_rol().equals("local manager")) {
                 Ticket retrievedTicket = ticketRepository.findById(id_ticket).get();
                 response.setCode(200);
-                response.setMessage("El stock " + retrievedTicket.getId_ticket() + " fue traido con exito");
+                response.setMessage("El ticket " + retrievedTicket.getId_ticket() + " fue traido con exito");
                 return ResponseEntity.ok(response);
             }
             response.setCode(401);
@@ -189,6 +260,30 @@ public class MainController {
         return personRepository.save(newPerson);
     }
 
+    @PostMapping(path = "/person/createdById/loggedPerson/{id_loggedPerson}", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<GeneralResponse> createPersonById (@RequestBody Person person, @PathVariable("id_loggedPerson")int id_loggedPerson) {
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+
+            Person loggedPerson = personRepository.findById(id_loggedPerson).get();
+
+            if (loggedPerson.getId_role().getType_rol().equals("manager")) {
+                personRepository.save(person);
+                response.setCode(HttpStatus.OK.value());
+                response.setMessage("El registro fue creado, id: " + person.getId_person());
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(HttpStatus.UNAUTHORIZED.value());
+            response.setMessage("Usuario no autorizado para crear registros");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @PostMapping(path = "/sale/create", consumes = "application/json", produces = "application/json")
     public Sale createSale (@RequestBody Sale newSale) {
         return saleRepository.save(newSale);
@@ -222,9 +317,55 @@ public class MainController {
         return stockRepository.save(newStock);
     }
 
+    @PostMapping(path = "/stock/createById/person/{id_person}", consumes = "application/json", produces = "application/json") // consultar
+    public ResponseEntity<GeneralResponse> createStockById (@PathVariable("id_person")int id_person,@RequestBody Stock stock) {
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+
+            if (person.getId_role().getType_rol().equals("local manager") || person.getId_role().getType_rol().equals("manager")) {
+                stockRepository.save(stock);
+                response.setCode(HttpStatus.OK.value());
+                response.setMessage("El registro fue creado, id: " + stock.getId_stock());
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(HttpStatus.UNAUTHORIZED.value());
+            response.setMessage("Usuario no autorizado para crear registros");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @PostMapping(path = "/ticket/create", consumes = "application/json", produces = "application/json")
     public Ticket createTicket (@RequestBody Ticket newTicket) {
         return ticketRepository.save(newTicket);
+    }
+
+    @PostMapping(path = "/ticket/createById/person/{id_person}", consumes = "application/json", produces = "application/json") // consultar
+    public ResponseEntity<GeneralResponse> createTicketById (@PathVariable("id_person")int id_person,@RequestBody Ticket ticket) {
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+
+            if (person.getId_role().getType_rol().equals("local manager") || person.getId_role().getType_rol().equals("manager")) {
+                ticketRepository.save(ticket);
+                response.setCode(HttpStatus.OK.value());
+                response.setMessage("El registro fue creado, id: " + ticket.getId_ticket());
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(HttpStatus.UNAUTHORIZED.value());
+            response.setMessage("Usuario no autorizado para crear registros");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     //==============UPDATE
@@ -237,6 +378,33 @@ public class MainController {
     @PutMapping(path = "/person/update")
     public Person updatePerson(@RequestBody Person updatedPerson){
         return personRepository.save(updatedPerson);
+    }
+
+    @PutMapping(path = "loggedPerson/{id_loggedPerson}/person/{id_person}/updateByPerson")
+    public @ResponseBody
+
+    ResponseEntity<GeneralResponse> updatePersonById(@PathVariable ("id_person") int id_person, @PathVariable ("id_loggedPerson") int id_loggedPerson){
+
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person loggedPerson = personRepository.findById(id_loggedPerson).get();
+            Person person = personRepository.findById(id_person).get();
+            if (loggedPerson.getId_role().getType_rol().equals("manager")) {
+                personRepository.save(person);
+                response.setCode(200);
+                response.setMessage("El registro " + person.getId_person() + " fue actualizado con exito");
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(401);
+            response.setMessage("Acceso denegado");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.setCode(500);
+            response.setMessage(e.getLocalizedMessage());
+            return ResponseEntity.ok(response);
+        }
     }
 
     @PutMapping(path = "/sale/update")
@@ -252,7 +420,7 @@ public class MainController {
             Person person = personRepository.findById(id_person).get();
             Sale updatedSale = saleRepository.findById(id_sale).get();
 
-            if (person.getId_role().getType_rol().equals("admin") || person.getId_role().getType_rol().equals("manager")) {
+            if (person.getId_role().getType_rol().equals("manager")) {
                 saleRepository.save(updatedSale);
                 response.setCode(200);
                 response.setMessage("El stock " + updatedSale.getId_sale() + "Fue actualizado con exito");
@@ -282,7 +450,7 @@ public class MainController {
             Person person = personRepository.findById(id_person).get();
             Stock updatedStock = stockRepository.findById(id_stock).get();
 
-                if (person.getId_role().getType_rol().equals("local manager") || person.getId_role().getType_rol().equals("manager")|| person.getId_role().getType_rol().equals("seller")) {
+                if (person.getId_role().getType_rol().equals("local manager") || person.getId_role().getType_rol().equals("seller")) {
                    stockRepository.save(updatedStock);
                    response.setCode(200);
                    response.setMessage("El stock " + updatedStock.getId_stock() + "Fue actualizado con exito");
@@ -315,7 +483,7 @@ public class MainController {
             if (person.getId_role().getType_rol().equals("manager") || person.getId_role().getType_rol().equals("local manager")) {
                 ticketRepository.save(updatedTicket);
                 response.setCode(200);
-                response.setMessage("El stock " + updatedTicket.getId_ticket() + "Fue actualizado con exito");
+                response.setMessage("El ticket " + updatedTicket.getId_ticket() + "Fue actualizado con exito");
                 return ResponseEntity.ok(response);
             }
             response.setCode(401);
@@ -352,7 +520,7 @@ public class MainController {
         return roleRepository.findAll();
     }
 
-    @DeleteMapping(path = "/loggedPerson/{id_loggedPerson}/delete/person/{id_person}") // consultar quiero borrar solo si es manager
+    @DeleteMapping(path = "/loggedPerson/{id_loggedPerson}/delete/person/{id_person}") 
     public @ResponseBody
 
     ResponseEntity<GeneralResponse> deletePersonByIdLoggedPerson (@PathVariable("id_person")int id_person,@PathVariable("id_loggedPerson")int id_loggedPerson) {
@@ -386,7 +554,7 @@ public class MainController {
 
     @DeleteMapping(path = "/person/{id_person}/sale/delete2/{id_sale}")
     public @ResponseBody
-    ResponseEntity<GeneralResponse> deleteSaleById2 (@PathVariable("id_person")int id_person,@PathVariable("id_sale")int id_sale) {
+    ResponseEntity<GeneralResponse> deleteSaleById (@PathVariable("id_person")int id_person,@PathVariable("id_sale")int id_sale) {
 
         GeneralResponse response = new GeneralResponse();
 
@@ -415,6 +583,30 @@ public class MainController {
         return stockRepository.findAll();
     }
 
+    @DeleteMapping(path = "/person/{id_person}/stock/delete/{id_stock}")
+    public @ResponseBody
+    ResponseEntity<GeneralResponse> deleteStockById (@PathVariable("id_person")int id_person,@PathVariable("id_stock")int id_stock) {
+
+        GeneralResponse response = new GeneralResponse();
+
+        try {
+            Person person = personRepository.findById(id_person).get();
+            if (person.getId_role().getId_role() == 1) {
+                stockRepository.deleteById(id_stock);
+                response.setCode(HttpStatus.OK.value());
+                response.setMessage("El registro fue eliminado, id: " + id_stock);
+                return ResponseEntity.ok(response);
+            }
+            response.setCode(HttpStatus.UNAUTHORIZED.value());
+            response.setMessage("Usuario no autorizado para borrar registros");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(HttpStatus.CONFLICT.getReasonPhrase() + " - " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @DeleteMapping(path = "/ticket/delete/{id_ticket}")
     public @ResponseBody
     Iterable<Ticket> deleteTicketById (@PathVariable("id_ticket")int id_ticket) {
@@ -422,7 +614,7 @@ public class MainController {
         return ticketRepository.findAll();
     }
 
-    @DeleteMapping(path = "/person/{id_person}/ticket/delete2/{id_ticket}")
+    @DeleteMapping(path = "/person/{id_person}/ticket/delete/{id_ticket}")
     public @ResponseBody
     ResponseEntity<GeneralResponse> deleteTicketById (@PathVariable("id_person")int id_person,@PathVariable("id_ticket")int id_ticket) {
 
