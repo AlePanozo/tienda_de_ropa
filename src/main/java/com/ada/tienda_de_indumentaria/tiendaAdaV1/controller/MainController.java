@@ -54,7 +54,7 @@ public class MainController {
             if (person.getId_role().getType_rol().equals("manager") || person.getId_role().getType_rol().equals("local manager")) {
                 Stock retrievedSale = stockRepository.findById(id_stock).get();
                 response.setCode(200);
-                response.setMessage("El stock " + retrievedSale.getId_stock() + " fue traido con exito");
+                response.setMessage("El stock fue traido con exito" + retrievedSale.toString());
                 return ResponseEntity.ok(response);
             }
             response.setCode(401);
@@ -181,7 +181,7 @@ public class MainController {
             if (person.getId_role().getType_rol().equals("manager") || person.getId_role().getType_rol().equals("local manager")) {
                 Sale retrievedSale = saleRepository.findById(id_sale).get();
                 response.setCode(200);
-                response.setMessage("La venta " + retrievedSale.getId_sale() + " fue traido con exito");
+                response.setMessage("La venta fue traida con exito" + retrievedSale.toString());
                 return ResponseEntity.ok(response);
             }
             response.setCode(401);
@@ -214,7 +214,7 @@ public class MainController {
             if (person.getId_role().getType_rol().equals("seller") || person.getId_role().getType_rol().equals("local manager")) {
                 Ticket retrievedTicket = ticketRepository.findById(id_ticket).get();
                 response.setCode(200);
-                response.setMessage("El ticket " + retrievedTicket.getId_ticket() + " fue traido con exito");
+                response.setMessage("El ticket fue traido con exito" + retrievedTicket.toString());
                 return ResponseEntity.ok(response);
             }
             response.setCode(401);
@@ -520,7 +520,7 @@ public class MainController {
         return roleRepository.findAll();
     }
 
-    @DeleteMapping(path = "/loggedPerson/{id_loggedPerson}/delete/person/{id_person}") 
+    @DeleteMapping(path = "/loggedPerson/{id_loggedPerson}/delete/person/{id_person}")
     public @ResponseBody
 
     ResponseEntity<GeneralResponse> deletePersonByIdLoggedPerson (@PathVariable("id_person")int id_person,@PathVariable("id_loggedPerson")int id_loggedPerson) {
